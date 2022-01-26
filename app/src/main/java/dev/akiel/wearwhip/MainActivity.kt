@@ -21,19 +21,26 @@ class MainActivity : Activity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        val mp = MediaPlayer . create (this, R.raw.whipcrack);
-        mShaker = Shaker(this)
         switch = findViewById(R.id.whipswitch)
+        mShaker = Shaker(this)
+        val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        val mp = MediaPlayer.create(this, R.raw.whipcrack);
         mShaker.setOnShakeListener(object : OnShakeListener {
             override fun onShake() {
                 Log.i("SHAKE", "shaking")
-                if (switch.isChecked) {
-                    v.vibrate(100)
-                    mp.start()
-                }
+                v.vibrate(100)
+                mp.start()
+
             }
         })
+        mShaker.pause()
+    }
 
+    fun switchClick(view: android.view.View) {
+        if (switch.isChecked) {
+            mShaker.resume()
+        } else {
+            mShaker.pause()
+        }
     }
 }
