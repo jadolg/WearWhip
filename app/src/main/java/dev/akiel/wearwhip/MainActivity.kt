@@ -58,7 +58,6 @@ class MainActivity : Activity() {
             0
         )
     }
-
     fun switchClick(view: android.view.View) {
         enableDisableShaker()
     }
@@ -68,6 +67,7 @@ class MainActivity : Activity() {
             mShaker.resume()
         } else {
             mShaker.pause()
+            finishAndRemoveTask()
         }
     }
 }
