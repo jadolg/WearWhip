@@ -8,7 +8,7 @@ import android.os.Bundle
 import android.os.Vibrator
 import android.util.Log
 import android.view.WindowManager
-import android.widget.Switch
+import android.widget.Button
 import dev.akiel.wearwhip.Shaker.OnShakeListener
 import dev.akiel.wearwhip.databinding.ActivityMainBinding
 
@@ -17,13 +17,14 @@ class MainActivity : Activity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var mShaker: Shaker
-    private lateinit var switch: Switch
+    private lateinit var closeButton: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        switch = findViewById(R.id.whipswitch)
+        closeButton = findViewById(R.id.closeButton)
         mShaker = Shaker(this)
         val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         val mp = MediaPlayer.create(this, R.raw.whipcrack);
@@ -41,7 +42,6 @@ class MainActivity : Activity() {
                 mp.start()
             }
         })
-        enableDisableShaker()
     }
 
     private fun setupAudio() {
@@ -58,16 +58,13 @@ class MainActivity : Activity() {
             0
         )
     }
-    fun switchClick(view: android.view.View) {
-        enableDisableShaker()
+
+    fun close(view: android.view.View) {
+        disableShaker()
     }
 
-    private fun enableDisableShaker() {
-        if (switch.isChecked) {
-            mShaker.resume()
-        } else {
-            mShaker.pause()
-            finishAndRemoveTask()
-        }
+    private fun disableShaker() {
+        mShaker.pause()
+        finishAndRemoveTask()
     }
 }
