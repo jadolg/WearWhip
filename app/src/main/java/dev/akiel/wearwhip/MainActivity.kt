@@ -49,11 +49,6 @@ class MainActivity : Activity() {
         mShaker.resume()
     }
 
-    override fun onPause() {
-        super.onPause()
-        mShaker.pause()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

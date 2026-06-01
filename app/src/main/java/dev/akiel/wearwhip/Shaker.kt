@@ -19,6 +19,7 @@ class Shaker(private val mContext: Context) : SensorListener {
     }
 
     fun resume() {
+        if (mSensorMgr != null) return
         mSensorMgr = mContext.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         if (mSensorMgr == null) {
             throw UnsupportedOperationException("Sensors not supported")
