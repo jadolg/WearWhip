@@ -40,6 +40,16 @@ class MainActivity : Activity() {
     private val requestCodePostNotifications = 101
 
 
+    override fun onResume() {
+        super.onResume()
+        mShaker.resume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mShaker.pause()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

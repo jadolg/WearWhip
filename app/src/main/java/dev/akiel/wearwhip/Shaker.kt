@@ -87,7 +87,4 @@ class Shaker(private val mContext: Context) : SensorListener {
         private const val SHAKE_COUNT = 3
     }
 
-    init {
-        resume()
-    }
 }
