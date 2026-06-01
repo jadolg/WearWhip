@@ -85,12 +85,6 @@ class MainActivity : Activity() {
 
     private fun setupAudio() {
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-        audioManager.setStreamVolume(
-            AudioManager.STREAM_RING,
-            audioManager.getStreamMaxVolume(AudioManager.STREAM_RING),
-            0
-        )
         audioManager.setStreamVolume(
             AudioManager.STREAM_MUSIC,
             audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC),
