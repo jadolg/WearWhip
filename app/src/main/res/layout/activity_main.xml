@@ -48,5 +48,31 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/orText"
             app:layout_constraintVertical_bias="0.109" />
+
+        <TextView
+            android:id="@+id/permissionErrorText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/permission_required"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/grantButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <Button
+            android:id="@+id/grantButton"
+            android:layout_width="83dp"
+            android:layout_height="43dp"
+            android:onClick="grantPermission"
+            android:text="@string/grant"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/permissionErrorText" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.wear.widget.BoxInsetLayout>

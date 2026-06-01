@@ -14,7 +14,9 @@ import android.os.Bundle
 import android.os.Vibrator
 import android.util.Log
 import android.view.WindowManager
+import android.view.View
 import android.widget.Button
+import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -29,6 +31,8 @@ class MainActivity : Activity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var mShaker: Shaker
     private lateinit var closeButton: Button
+    private lateinit var permissionErrorText: TextView
+    private lateinit var grantButton: Button
 
     private lateinit var notificationManager: NotificationManager
     private lateinit var channel: NotificationChannel
@@ -56,10 +60,12 @@ class MainActivity : Activity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         closeButton = findViewById(R.id.closeButton)
+        permissionErrorText = findViewById(R.id.permissionErrorText)
+        grantButton = findViewById(R.id.grantButton)
         mShaker = Shaker(this)
         val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        val mp = MediaPlayer.create(this, R.raw.whipcrack);
-        mp.setVolume(100F, 100F)
+        val mp = MediaPlayer.create(this, R.raw.whipcrack)
+        mp?.setVolume(100F, 100F)
 
         // Keep the screen on
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -72,7 +78,7 @@ class MainActivity : Activity() {
             override fun onShake() {
                 Log.i("SHAKE", "shaking")
                 v.vibrate(100)
-                mp.start()
+                mp?.start()
             }
         })
     }
@@ -92,13 +98,35 @@ class MainActivity : Activity() {
         )
     }
 
-    fun close(view: android.view.View) {
+    fun close(view: View) {
         disableShaker()
+    }
+
+    fun grantPermission(view: View) {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+            requestCodePostNotifications
+        )
+    }
+
+    private fun showPermissionError() {
+        binding.shakeText.visibility = View.GONE
+        binding.orText.visibility = View.GONE
+        permissionErrorText.visibility = View.VISIBLE
+        grantButton.visibility = View.VISIBLE
+    }
+
+    private fun hidePermissionError() {
+        binding.shakeText.visibility = View.VISIBLE
+        binding.orText.visibility = View.VISIBLE
+        permissionErrorText.visibility = View.GONE
+        grantButton.visibility = View.GONE
     }
 
     private fun disableShaker() {
         mShaker.pause()
-        notificationManager.cancel(notificationID)
+        if (::notificationManager.isInitialized) notificationManager.cancel(notificationID)
         finishAndRemoveTask()
     }
 
@@ -131,9 +159,10 @@ class MainActivity : Activity() {
             if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 createNotificationsChannel()
                 startNotification()
+                hidePermissionError()
             } else {
                 Log.w("NotificationPermission", "POST_NOTIFICATIONS permission denied.")
-                disableShaker()
+                showPermissionError()
             }
             return
         }

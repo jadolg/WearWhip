@@ -4,4 +4,6 @@
     <string name="instructions">Shake your watch</string>
     <string name="or">or</string>
     <string name="close">close</string>
+    <string name="permission_required">Notification permission needed to keep app running</string>
+    <string name="grant">Grant</string>
 </resources>
