@@ -7,6 +7,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.MediaPlayer
@@ -69,13 +70,23 @@ class MainActivity : Activity() {
 
         initNotificationsChannel()
 
+        val whip = {
+            Log.i("SHAKE", "shaking")
+            v.vibrate(100)
+            mp?.start()
+        }
+
         mShaker.setOnShakeListener(object : OnShakeListener {
             override fun onShake() {
-                Log.i("SHAKE", "shaking")
-                v.vibrate(100)
-                mp?.start()
+                whip()
             }
         })
+
+        // The emulator caps sensor injection at ~1Hz, too slow to fake a real
+        // shake, so allow tapping the screen to fire the whip in debug builds.
+        if (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) {
+            binding.root.setOnClickListener { whip() }
+        }
     }
 
     private fun setupAudio() {

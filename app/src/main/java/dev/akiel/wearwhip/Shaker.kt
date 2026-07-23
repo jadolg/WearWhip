@@ -1,10 +1,14 @@
 package dev.akiel.wearwhip
 
 import android.content.Context
-import android.hardware.SensorListener
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
-class Shaker(private val mContext: Context) : SensorListener {
+class Shaker(private val mContext: Context) : SensorEventListener {
     private var mSensorMgr: SensorManager? = null
     private var mLastX = -1.0f
     private var mLastY = -1.0f
@@ -20,31 +24,33 @@ class Shaker(private val mContext: Context) : SensorListener {
 
     fun resume() {
         if (mSensorMgr != null) return
-        mSensorMgr = mContext.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        if (mSensorMgr == null) {
-            throw UnsupportedOperationException("Sensors not supported")
-        }
-        val supported = mSensorMgr!!.registerListener(
+        val sensorMgr = mContext.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val accelerometer = sensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+            ?: throw UnsupportedOperationException("Accelerometer not supported")
+        val supported = sensorMgr.registerListener(
             this,
-            SensorManager.SENSOR_ACCELEROMETER,
+            accelerometer,
             SensorManager.SENSOR_DELAY_GAME
         )
         if (!supported) {
-            mSensorMgr!!.unregisterListener(this, SensorManager.SENSOR_ACCELEROMETER)
+            sensorMgr.unregisterListener(this)
             throw UnsupportedOperationException("Accelerometer not supported")
         }
+        mSensorMgr = sensorMgr
     }
 
-    override fun onAccuracyChanged(sensor: Int, accuracy: Int) {}
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
     fun pause() {
-        if (mSensorMgr != null) {
-            mSensorMgr!!.unregisterListener(this, SensorManager.SENSOR_ACCELEROMETER)
+        mSensorMgr?.let {
+            it.unregisterListener(this)
             mSensorMgr = null
         }
     }
 
-    override fun onSensorChanged(sensor: Int, values: FloatArray) {
-        if (sensor != SensorManager.SENSOR_ACCELEROMETER) return
+    override fun onSensorChanged(event: SensorEvent) {
+        if (event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
+        val values = event.values
         val now = System.currentTimeMillis()
         if (now - mLastForce > SHAKE_TIMEOUT) {
             mShakeCount = 0
@@ -52,27 +58,25 @@ class Shaker(private val mContext: Context) : SensorListener {
         if (now - mLastTime > TIME_THRESHOLD) {
             val diff = now - mLastTime
             val speed =
-                Math.abs(values[SensorManager.DATA_X] + values[SensorManager.DATA_Y] + values[SensorManager.DATA_Z] - mLastX - mLastY - mLastZ) / diff * 10000
+                abs(values[0] + values[1] + values[2] - mLastX - mLastY - mLastZ) / diff * 10000
             val sensitivity = 2
-            var FORCE_THRESHOLD = BASE_FORCE_THRESHOLD
+            var forceThreshold = BASE_FORCE_THRESHOLD
             when (sensitivity) {
-                0 -> FORCE_THRESHOLD = BASE_FORCE_THRESHOLD * 4
-                1 -> FORCE_THRESHOLD = Math.round((BASE_FORCE_THRESHOLD * 2).toFloat())
+                0 -> forceThreshold = BASE_FORCE_THRESHOLD * 4
+                1 -> forceThreshold = (BASE_FORCE_THRESHOLD * 2f).roundToInt()
             }
-            if (speed > FORCE_THRESHOLD) {
+            if (speed > forceThreshold) {
                 if (++mShakeCount >= SHAKE_COUNT && now - mLastShake > SHAKE_DURATION) {
                     mLastShake = now
                     mShakeCount = 0
-                    if (mShakeListener != null) {
-                        mShakeListener!!.onShake()
-                    }
+                    mShakeListener?.onShake()
                 }
                 mLastForce = now
             }
             mLastTime = now
-            mLastX = values[SensorManager.DATA_X]
-            mLastY = values[SensorManager.DATA_Y]
-            mLastZ = values[SensorManager.DATA_Z]
+            mLastX = values[0]
+            mLastY = values[1]
+            mLastZ = values[2]
         }
     }
 
