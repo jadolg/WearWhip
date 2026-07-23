@@ -22,11 +22,12 @@ class Shaker(private val mContext: Context) : SensorEventListener {
         mShakeListener = listener
     }
 
-    fun resume() {
-        if (mSensorMgr != null) return
-        val sensorMgr = mContext.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        val accelerometer = sensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-            ?: throw UnsupportedOperationException("Accelerometer not supported")
+    /** Starts listening for shakes. Returns false if no usable accelerometer. */
+    fun resume(): Boolean {
+        if (mSensorMgr != null) return true
+        val sensorMgr = mContext.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+            ?: return false
+        val accelerometer = sensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) ?: return false
         val supported = sensorMgr.registerListener(
             this,
             accelerometer,
@@ -34,9 +35,10 @@ class Shaker(private val mContext: Context) : SensorEventListener {
         )
         if (!supported) {
             sensorMgr.unregisterListener(this)
-            throw UnsupportedOperationException("Accelerometer not supported")
+            return false
         }
         mSensorMgr = sensorMgr
+        return true
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}

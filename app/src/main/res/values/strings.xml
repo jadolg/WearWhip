@@ -6,4 +6,5 @@
     <string name="close">close</string>
     <string name="permission_required">Notification permission needed to keep app running</string>
     <string name="grant">Grant</string>
+    <string name="no_sensor">No motion sensor on this watch</string>
 </resources>

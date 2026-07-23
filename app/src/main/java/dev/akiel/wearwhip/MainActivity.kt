@@ -47,7 +47,15 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
-        mShaker.resume()
+        val ok = try {
+            mShaker.resume()
+        } catch (e: Exception) {
+            Log.w("SHAKE", "Could not start accelerometer", e)
+            false
+        }
+        if (!ok) {
+            binding.shakeText.text = getString(R.string.no_sensor)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
