@@ -81,7 +81,11 @@ class MainActivity : Activity() {
         val whip = {
             Log.i("SHAKE", "shaking")
             v.vibrate(100)
-            mp?.start()
+            try {
+                mp?.start()
+            } catch (e: IllegalStateException) {
+                Log.w("SHAKE", "Could not play whip sound", e)
+            }
         }
 
         mShaker.setOnShakeListener(object : OnShakeListener {
@@ -99,11 +103,15 @@ class MainActivity : Activity() {
 
     private fun setupAudio() {
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        audioManager.setStreamVolume(
-            AudioManager.STREAM_MUSIC,
-            audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC),
-            0
-        )
+        try {
+            audioManager.setStreamVolume(
+                AudioManager.STREAM_MUSIC,
+                audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC),
+                0
+            )
+        } catch (e: SecurityException) {
+            Log.w("SHAKE", "Could not set volume", e)
+        }
     }
 
     fun close(view: View) {
